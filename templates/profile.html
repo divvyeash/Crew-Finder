@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Create Profile - CrewFinder</title>
+</head>
+<body>
+
+    <button onclick="window.location.href='index.html'">← Back</button>
+
+    <h1>Create Your Profile</h1>
+
+    <form action="/create_profile" method="POST" enctype="multipart/form-data">
+
+        <h3>Basic Information</h3>
+
+        <label>Full Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Course:</label><br>
+        <input type="text" name="course" required><br><br>
+
+        <label>Year/Semester:</label><br>
+        <input type="text" name="year" placeholder="e.g. Year 2 Semester 1"><br><br>
+
+        <label>Profile Picture:</label><br>
+        <input type="file" name="profile_image"><br><br>
+
+
+        <h3>About You</h3>
+
+        <label>Bio:</label><br>
+        <textarea name="bio" rows="4" cols="50"></textarea><br><br>
+
+
+        <h3>Skills</h3>
+
+        <label>Skills:</label><br>
+        <input type="text" name="skill1">
+        <select name="skill1_level">
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+        </select><br><br>
+
+
+        <h3>Portfolio</h3>
+
+        <label>Portfolio / GitHub Link:</label><br>
+        <input type="url" name="portfolio"><br><br>
+
+
+        <h3>Project Details</h3>
+
+        <label>Project Name:</label><br>
+        <input type="text" name="project_name"><br><br>
+
+        <label>Looking For:</label><br>
+        <select name="looking_for">
+            <option>Teammates</option>
+            <option>Join a Team</option>
+        </select><br><br>
+
+        <label>Preferred Role:</label><br>
+        <input type="text" name="role" placeholder="e.g. Designer, Developer"><br><br>
+
+        <label>Project Type:</label><br>
+        <select name="project_type">
+            <option>Assignment</option>
+            <option>Competition</option>
+            <option>Personal Project</option>
+        </select><br><br>
+
+
+        <h3>Availability</h3>
+
+        <label>Available Days:</label><br>
+        <input type="text" name="availability_days" placeholder="e.g. Mon, Wed, Fri"><br><br>
+
+        <label>Working Style:</label><br>
+        <select name="working_style">
+            <option>Online</option>
+            <option>Physical</option>
+            <option>Hybrid</option>
+        </select><br><br>
+
+        <label>Work Pace:</label><br>
+        <select name="pace">
+            <option>Fast</option>
+            <option>Moderate</option>
+            <option>Chill</option>
+        </select><br><br>
+
+        <button type="submit">Create Profile</button>
+
+    </form>
+
+</body>
+</html>
