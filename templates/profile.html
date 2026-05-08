@@ -11,17 +11,16 @@
 
     <h1>Create Your Profile</h1>
 
-    <form action="/create_profile" method="POST" enctype="multipart/form-data">
-
+    <form action="{{ form_action }}" method="POST" enctype="multipart/form-data">
 
         <label>Full Name:</label><br>
-        <input type="text" name="name" required><br><br>
+        <input type="text" name="name" required value="{{ profile.name if profile else '' }}"><br><br>
 
         <label>Course:</label><br>
-        <input type="text" name="course" required><br><br>
+        <input type="text" name="course" required value="{{ profile.course if profile else '' }}"><br><br>
 
         <label>Student Email:</label><br>
-        <input type="email" name="email" required><br><br>
+        <input type="email" name="email" required value="{{ profile.email if profile else '' }}"><br><br>
 
         <label>Year/Semester:</label><br>
         <input type="text" name="year" placeholder="e.g. Year 2 Semester 1"><br><br>
@@ -29,34 +28,31 @@
         <label>Profile Picture:</label><br>
         <input type="file" name="profile_image"><br><br>
 
-
         <h3>About You</h3>
 
         <label>Bio:</label><br>
-        <textarea name="bio" rows="4" cols="50"></textarea><br><br>
-
+        <textarea name="bio" rows="4" cols="50">{{ profile.bio if profile else '' }}</textarea><br><br>
 
         <h3>Skills</h3>
 
-        <label>Skills:</label><br>
-        <input type="text" name="skill1">
+        <label>Skills:</label><br> 
+        <input type="text" name="skill1"><br><br>
+
         <select name="skill1_level">
             <option>Beginner</option>
             <option>Intermediate</option>
             <option>Advanced</option>
         </select><br><br>
 
-
         <h3>Portfolio</h3>
 
         <label>Portfolio / GitHub Link:</label><br>
         <input type="url" name="portfolio"><br><br>
 
-
         <h3>Project Details</h3>
 
         <label>Project Name:</label><br>
-        <input type="text" name="project_name"><br><br>
+        <input type="text" name="project_name" value="{{ profile.project_name if profile else '' }}"><br><br>
 
         <label>Looking For:</label><br>
         <select name="looking_for">
@@ -65,7 +61,7 @@
         </select><br><br>
 
         <label>Preferred Role:</label><br>
-        <input type="text" name="role" placeholder="e.g. Designer, Developer"><br><br>
+        <input type="text" name="role" placeholder="e.g. Designer, Developer" value="{{ profile.role if profile else '' }}"><br><br>
 
         <label>Project Type:</label><br>
         <select name="project_type">
@@ -73,7 +69,6 @@
             <option>Competition</option>
             <option>Personal Project</option>
         </select><br><br>
-
 
         <h3>Availability</h3>
 
@@ -94,9 +89,19 @@
             <option>Chill</option>
         </select><br><br>
 
-        <button type="submit">Create Profile</button>
+        <button type="submit">Save</button> <button type="button" onclick="enableEdit()">Edit</button>
 
     </form>
+
+    <script>
+    function enableEdit() {
+        const inputs = document.querySelectorAll("input, textarea");
+        const selects = document.querySelectorAll("select");
+
+        inputs.forEach(field => field.removeAttribute("readonly"));
+        selects.forEach(field => field.disabled = false);
+    }
+    </script>
 
 </body>
 </html>
