@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 
-# This is the 'db' that app.py is trying to import
 db = SQLAlchemy()
 
 class User(db.Model):

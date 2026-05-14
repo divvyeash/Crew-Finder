@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from models import db, User
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crewfinder.db'
@@ -14,15 +14,9 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Handles both JSON (Shivanie) and Form data (Ransly)
-        data = request.get_json() if request.is_json else request.form
-        
-        email = data.get('email')
-        if User.query.filter_by(email=email).first():
-            return jsonify({"message": "Email already exists"}), 400
-            
+        data = request.form
         hashed_pw = generate_password_hash(data.get('password'))
-        new_user = User(username=data.get('username'), email=email, password=hashed_pw)
+        new_user = User(username=data.get('username'), email=data.get('email'), password=hashed_pw)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
