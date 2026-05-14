@@ -3,10 +3,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <button onclick="window.location.href='register.html'">← Back</button>
     <title>Create your CrewFinder account- Login/Sign Up</title>
 </head>
 <body>
+
+    <a href="{{ url_for('index') }}">← Back</a>
 
 
 <header>
@@ -38,7 +39,7 @@
         </form>
 
         <p><a href="#">Forgot Password?</a></p>
-        <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p>
 
     </section>
 

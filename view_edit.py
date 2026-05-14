@@ -58,3 +58,36 @@ def update_profile():
     db.session.commit()
 
     return redirect(url_for('profile'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+
+    if request.method == 'POST':
+
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        #to check password matches
+        if password != confirm_password:
+            return "Passwords do not match"
+
+        if User.query.filter_by(email=email).first():
+            return "Email already exists"
+
+        #create new user object with form data
+        new_user = User(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        #save new user to database
+        db.session.add(new_user)
+        db.session.commit()
+
+        return redirect(url_for('profile'))
+
+    return render_template('register.html')

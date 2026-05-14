@@ -7,9 +7,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crewfinder.db'
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 db.init_app(app)
 
+import view_edit
+
+
 @app.route('/')
 def index():
-    return "CrewFinder is Running!"
+    return render_template('index.html')
 
 @app.route('/routes')
 def routes():
@@ -28,6 +31,10 @@ def register():
         db.session.commit()
         return "User Registered!"
     return render_template("register.html")
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
