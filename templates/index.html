@@ -2,15 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CrewFinder - Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to CrewFinder</h1>
-    <p>Find your team and start building.</p>
-    <nav>
-        <a href="{{ url_for('register') }}">Register Here</a> | 
-        <a href="{{ url_for('login') }}">Login</a>
-    </nav>
+    <div class="login-container">
+        <div class="login-branding">
+            <div class="branding-content">
+                <h2>CrewFinder</h2>
+                <p>Find your perfect team, build incredible projects together.</p>
+            </div>
+        </div>
+
+        <div class="login-form-section">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h2>Welcome to CrewFinder</h2>
+                    <p>Discover collaborators, sync up on tasks, and launch your next project.</p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 40px;">
+                    <a href="{{ url_for('login') }}" class="btn-submit" style="text-decoration: none; text-align: center; display: block;">
+                        Sign In to Account
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn-submit" style="text-decoration: none; text-align: center; display: block; background-color: transparent; border: 2px solid #1e293b; color: #1e293b; padding: 10px 12px;">
+                        Create an Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

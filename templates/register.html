@@ -1,17 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CrewFinder - Register</title>
-    <!-- This line connects your CSS to the HTML -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Join CrewFinder</h1>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="email" name="email" placeholder="MMU Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Create Account</button>
-    </form>
+    <div class="login-container">
+        <div class="login-branding">
+            <div class="branding-content">
+                <h2>CrewFinder</h2>
+                <p>Find your perfect team, build incredible projects together.</p>
+            </div>
+        </div>
+
+        <div class="login-form-section">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h2>Join CrewFinder</h2>
+                    <p>Create an account using your MMU email address.</p>
+                </div>
+
+                <form action="{{ url_for('register') }}" method="POST">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a unique username" required autocomplete="username">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">MMU Email</label>
+                        <input type="email" id="email" name="email" placeholder="username@student.mmu.edu.my" required autocomplete="email">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                    </div>
+
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Sign in instead</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
