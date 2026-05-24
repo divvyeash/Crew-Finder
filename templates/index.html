@@ -3,36 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder - Home</title>
+    <title>CrewFinder - Find Your MMU Project Team</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-branding">
-            <div class="branding-content">
-                <h2>CrewFinder</h2>
-                <p>Find your perfect team, build incredible projects together.</p>
+<body class="dashboard-body">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">CrewFinder <span class="mmu-tag">MMU</span></a>
+            <div class="nav-links">
+                <a href="#" class="active">Explore Hub</a>
+                <a href="#">My Crews</a>
+                <a href="#">Create Team</a>
+                <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
             </div>
         </div>
+    </nav>
 
-        <div class="login-form-section">
-            <div class="form-wrapper">
-                <div class="form-header">
-                    <h2>Welcome to CrewFinder</h2>
-                    <p>Discover collaborators, sync up on tasks, and launch your next project.</p>
-                </div>
+    <main class="dashboard-container">
+        
+        <header class="dashboard-hero">
+            <h1>Find your perfect MMU group partners</h1>
+            <p>Connect with students from FCI, FOE, FOM, or FAC to build awesome projects together.</p>
+        </header>
 
-                <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 40px;">
-                    <a href="{{ url_for('login') }}" class="btn-submit" style="text-decoration: none; text-align: center; display: block;">
-                        Sign In to Account
-                    </a>
-                    <a href="{{ url_for('register') }}" class="btn-submit" style="text-decoration: none; text-align: center; display: block; background-color: transparent; border: 2px solid #1e293b; color: #1e293b; padding: 10px 12px;">
-                        Create an Account
-                    </a>
-                </div>
+        <section class="stats-row">
+            <div class="stat-card">
+                <h3>142</h3>
+                <p>Active Crews Looking for Members</p>
             </div>
-        </div>
-    </div>
+            <div class="stat-card">
+                <h3>12</h3>
+                <p>Faculties & Specializations</p>
+            </div>
+            <div class="stat-card">
+                <h3>450+</h3>
+                <p>Students Connected This Trimester</p>
+            </div>
+        </section>
+
+        <section class="search-filter-section">
+            <div class="search-box">
+                <input type="text" placeholder="Search by subject code or project name (e.g., ECP2046, Mini IT)...">
+            </div>
+            <div class="filter-dropdowns">
+                <select name="faculty">
+                    <option value="">All Faculties</option>
+                    <option value="fci">FCI (Computing)</option>
+                    <option value="foe">FOE (Engineering)</option>
+                    <option value="fom">FOM (Management)</option>
+                </select>
+                <button class="btn-filter-search">Search Crews</button>
+            </div>
+        </section>
+
+        <section class="listings-section">
+            <h2 class="section-title">Trending Teams Recruiting Now</h2>
+            
+            <div class="listings-grid">
+                
+                <div class="project-card">
+                    <div class="card-header">
+                        <span class="subject-badge">TCP1201</span>
+                        <span class="spots-badge open">2 Slots Open</span>
+                    </div>
+                    <h3>Mini IT Project (Web App)</h3>
+                    <p class="project-desc">Building a peer-to-peer marketplace app using Flask. Looking for someone strong in frontend design/CSS layout!</p>
+                    <div class="project-tags">
+                        <span>Flask</span>
+                        <span>CSS/HTML</span>
+                        <span>FCI</span>
+                    </div>
+                    <div class="card-footer">
+                        <span class="posted-by">By Divyyeash</span>
+                        <button class="btn-join">Request to Join</button>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="card-header">
+                        <span class="subject-badge">PRG2111</span>
+                        <span class="spots-badge open">1 Slot Open</span>
+                    </div>
+                    <h3>OOP Assignment Group 4</h3>
+                    <p class="project-desc">Developing a Java-based inventory system. Core structure is down, need assistance managing database operations backend hooks.</p>
+                    <div class="project-tags">
+                        <span>Java</span>
+                        <span>SQLite</span>
+                        <span>FCI</span>
+                    </div>
+                    <div class="card-footer">
+                        <span class="posted-by">By Shivanie</span>
+                        <button class="btn-join">Request to Join</button>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="card-header">
+                        <span class="subject-badge">ENT3011</span>
+                        <span class="spots-badge full">Full</span>
+                    </div>
+                    <h3>Entrepreneurship Pitch Deck</h3>
+                    <p class="project-desc">Creating a business mockup framework for an eco-friendly tech solution. Looking to practice prototyping with UI wireframes.</p>
+                    <div class="project-tags">
+                        <span>Figma</span>
+                        <span>FOM</span>
+                        <span>Business Plan</span>
+                    </div>
+                    <div class="card-footer">
+                        <span class="posted-by">By Kumar</span>
+                        <button class="btn-join disabled" disabled>View Details</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
 </body>
 </html>
