@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder Hub - MMU Portfolio Portfolio Connection</title>
+    <title>CrewFinder Hub</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -15,62 +15,58 @@
             <div class="nav-links">
                 <a href="{{ url_for('index', tab='crews') }}" class="{% if active_tab == 'crews' %}active{% endif %}">Explore Hub</a>
                 {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('create_profile') }}">Edit My Portfolio</a>
                     <a href="#" onclick="toggleModal('projectModal', true)">Recruit Crew</a>
                     <a href="#" onclick="toggleModal('eventModal', true)">Host Event</a>
                     <span class="user-pill">⚡ {{ current_user.username }}</span>
                     <a href="{{ url_for('logout') }}" class="btn-nav-login logout-btn">Sign Out</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="btn-nav-login">Join Hub Workspace</a>
+                    <a href="{{ url_for('login') }}" class="btn-nav-login">Sign Into Workspace</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
     <main class="dashboard-container">
-        <header class="dashboard-hero">
-            <h1>MMU Peer Innovation & Co-Working Network</h1>
-            <p>Publish project requirements, deploy interactive events, and discover skilled student portfolios across all faculties.</p>
-        </header>
-
         <div class="hub-tabs-container">
-            <a href="{{ url_for('index', tab='crews', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'crews' %}active{% endif %}">🔥 Active Recruitment Squads</a>
-            <a href="{{ url_for('index', tab='events', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'events' %}active{% endif %}">🗓️ Campus Events Hub</a>
-            <a href="{{ url_for('index', tab='portfolios', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'portfolios' %}active{% endif %}">🎓 Student Portfolios</a>
+            <a href="{{ url_for('index', tab='crews') }}" class="tab-link {% if active_tab == 'crews' %}active{% endif %}">🔥 Active Teams</a>
+            <a href="{{ url_for('index', tab='events') }}" class="tab-link {% if active_tab == 'events' %}active{% endif %}">🗓️ Campus Events</a>
+            <a href="{{ url_for('index', tab='portfolios') }}" class="tab-link {% if active_tab == 'portfolios' %}active{% endif %}">🎓 Talent Portfolios</a>
         </div>
 
         <form method="GET" action="{{ url_for('index') }}" class="search-filter-section">
             <input type="hidden" name="tab" value="{{ active_tab }}">
             <div class="search-box">
-                <input type="text" name="search" value="{{ search_query }}" placeholder="Filter dynamic space by keyword, skill, index parameter or title...">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Filter dynamic grid spaces globally...">
             </div>
-            <div class="filter-dropdowns">
-                <select name="faculty">
-                    <option value="">All Associated Faculties</option>
-                    <option value="FCI" {% if faculty_filter == 'FCI' %}selected{% endif %}>FCI (Computing Informatics)</option>
-                    <option value="FOM" {% if faculty_filter == 'FOM' %}selected{% endif %}>FOM (Faculty of Management)</option>
+            
+            {% if active_tab == 'portfolios' %}
+            <div class="specification-filters" style="display: flex; gap: 10px;">
+                <select name="course">
+                    <option value="">By Targeted Course Specification</option>
+                    {% for course in all_courses %}<option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option>{% endfor %}
                 </select>
-                <button type="submit" class="btn-filter-search">Update Queries</button>
+                <select name="skill">
+                    <option value="">By Skill Matrix Requirement</option>
+                    {% for skill in all_skills %}<option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option>{% endfor %}
+                </select>
             </div>
+            {% endif %}
+            
+            <button type="submit" class="btn-filter-search">Update Queries</button>
         </form>
 
         {% if active_tab == 'crews' %}
         <section class="listings-section">
-            <h2 class="section-title">Open Collaboration Assignments</h2>
             <div class="listings-grid">
                 {% for project in projects %}
                 <div class="project-card">
-                    <div class="card-header">
-                        <span class="subject-badge">{{ project.subject_code }}</span>
-                        <span class="spots-badge open">{{ project.slots_open }} Slots Remaining</span>
-                    </div>
+                    <div class="card-header"><span class="subject-badge">{{ project.subject_code }}</span><span class="spots-badge open">{{ project.slots_open }} Slots Open</span></div>
                     <h3>{{ project.title }}</h3>
                     <p class="project-desc">{{ project.description }}</p>
-                    <div class="project-tags">
-                        {% for tag in project.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}
-                    </div>
                     <div class="card-footer">
                         <span class="posted-by">Lead: <strong>{{ project.author.username }}</strong></span>
-                        <button class="btn-join" onclick="alert('Collaboration request safely routed to author workspace!')">Connect</button>
+                        <button class="btn-join" onclick="openChatPipeline('{{ project.author.username }}')">Message Leader</button>
                     </div>
                 </div>
                 {% endfor %}
@@ -80,23 +76,14 @@
 
         {% if active_tab == 'events' %}
         <section class="listings-section">
-            <h2 class="section-title">Campus Events & Challenges</h2>
             <div class="listings-grid">
                 {% for event in events %}
                 <div class="project-card event-card">
-                    <div class="card-header">
-                        <span class="subject-badge event-badge">🏆 Event Badge</span>
-                        <span class="spots-badge points-badge">+{{ event.reward_points }} MMU Points</span>
-                    </div>
+                    <div class="card-header"><span class="subject-badge event-badge">🏆 Campus Event</span><span class="spots-badge points-badge">+{{ event.reward_points }} Points</span></div>
                     <h3>{{ event.title }}</h3>
-                    <p class="event-meta-line">🏛️ Host: <strong>{{ event.organizer }}</strong></p>
+                    <p class="event-meta-line">🏛️ Host: {{ event.organizer }}</p>
                     <p class="event-meta-line">📍 Location: {{ event.venue }}</p>
-                    <p class="event-meta-line">⏰ Timeline: {{ event.date_time }}</p>
-                    <p class="project-desc" style="margin-top:12px;">{{ event.description }}</p>
-                    <div class="card-footer">
-                        <span class="posted-by">Posted by: {{ event.creator.username }}</span>
-                        <button class="btn-join event-btn" onclick="alert('Seat allocation confirmed! Ticket code dispatched via MMU Mailbox.')">Register Ticket</button>
-                    </div>
+                    <p class="project-desc" style="margin-top:10px;">{{ event.description }}</p>
                 </div>
                 {% endfor %}
             </div>
@@ -105,26 +92,26 @@
 
         {% if active_tab == 'portfolios' %}
         <section class="listings-section">
-            <h2 class="section-title">Talent Network Portfolios</h2>
             <div class="listings-grid">
                 {% for user in users %}
                 <div class="project-card portfolio-card">
                     <div class="portfolio-top-block">
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.avatar_seed }}" alt="User Core Profile Avatar" class="portfolio-avatar">
+                        <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed={{ user.avatar_seed }}" alt="Profile Avatar illustration" class="portfolio-avatar">
                         <div>
                             <h3>{{ user.username }}</h3>
-                            <p class="portfolio-subtext">{{ user.course }}</p>
-                            <p class="portfolio-subtext academic-term">⏳ {{ user.semester }}</p>
+                            <p class="portfolio-subtext" style="color:#6366f1; font-weight:700;">{{ user.course or 'Course specifications pending' }}</p>
+                            <p class="portfolio-subtext">⏳ {{ user.semester or 'N/A' }}</p>
                         </div>
                     </div>
-                    <p class="project-desc profile-bio-area">"{{ user.bio }}"</p>
-                    <div class="portfolio-skills-label">Expertise Core Matrix:</div>
-                    <div class="project-tags skills-tags">
-                        {% for skill in user.skills.split(',') %}<span>🛠️ {{ skill }}</span>{% endfor %}
+                    <p class="project-desc">"{{ user.bio or 'This student has not deployed a custom bio summary block yet.' }}"</p>
+                    <div class="project-tags">
+                        {% if user.skills %}{% for skill in user.skills.split(',') %}<span>🛠️ {{ skill.strip() }}</span>{% endfor %}{% endif %}
                     </div>
                     <div class="card-footer">
                         <span class="posted-by">{{ user.email }}</span>
-                        <a href="mailto:{{ user.email }}" class="btn-join portfolio-btn">Hire / Message</a>
+                        {% if current_user.is_authenticated and current_user.id != user.id %}
+                            <button class="btn-join portfolio-btn" onclick="openChatPipeline('{{ user.username }}')">Open Chat Pipeline</button>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -133,16 +120,37 @@
         {% endif %}
     </main>
 
+    <div class="chat-widget" id="peerChatPanel" style="bottom:24px; right:400px; display:none; height:420px;">
+        <div class="chat-header" style="background:linear-gradient(135deg, #10b981, #059669); display:flex; justify-content:between; align-items:center;">
+            <h4 id="chatPartnerName">💬 Channel Session</h4>
+            <span onclick="document.getElementById('peerChatPanel').style.display='none'" style="color:white; cursor:pointer; font-weight:bold;">✕</span>
+        </div>
+        <div class="chat-body" id="peerChatBody"></div>
+        <div class="chat-footer">
+            <input type="text" id="peerChatInput" placeholder="Send secure pipeline message...">
+            <button onclick="sendPeerMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" onclick="toggleChat()"><h4>🤖 System Copilot Assistant</h4></div>
+        <div class="chat-body" id="chatBody"><div class="msg bot">System node online. Ask me queries about dynamic specs filters or workspace messaging tools!</div></div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask assistant...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="projectModal" style="display:none;">
         <div class="modal-box">
-            <h3>Publish New Collaboration Directive</h3>
+            <h3>Publish Team Recruitment Notice</h3>
             <form action="{{ url_for('create_project') }}" method="POST">
                 <input type="text" name="subject_code" placeholder="Subject Code Parameters (e.g. TCP1201)" required>
-                <input type="text" name="title" placeholder="Project Workspace Title Name" required>
-                <textarea name="description" placeholder="Provide clear task details and explicit skill sets needed to fill the empty seats..." required></textarea>
-                <input type="text" name="tags" placeholder="Tech Tags / Faculty (e.g. FCI,Python,Flask)" required>
-                <input type="number" name="slots_open" placeholder="Available Seating Openings" min="1" required>
-                <button type="submit" class="btn-filter-search">Deploy Team Recruitment Block</button>
+                <input type="text" name="title" placeholder="Project Name Title" required>
+                <textarea name="description" placeholder="Provide assignment overview instructions..." required></textarea>
+                <input type="text" name="tags" placeholder="Tags (e.g. FCI,Flask,Python)" required>
+                <input type="number" name="slots_open" placeholder="Available Open Slots" min="1" required>
+                <button type="submit" class="btn-filter-search">Deploy Recruitment Block</button>
                 <button type="button" onclick="toggleModal('projectModal', false)" class="cancel-modal-btn">Dismiss Window</button>
             </form>
         </div>
@@ -150,60 +158,84 @@
 
     <div class="modal-overlay" id="eventModal" style="display:none;">
         <div class="modal-box">
-            <h3>Deploy New Campus Event Tracking Node</h3>
+            <h3>Host New Campus Interactive Event</h3>
             <form action="{{ url_for('create_event') }}" method="POST">
-                <input type="text" name="title" placeholder="Event / Hackathon Operational Title" required>
-                <input type="text" name="organizer" placeholder="Host Organizers (e.g. FCI Society, SRC)" required>
-                <input type="text" name="date_time" placeholder="Date Schedule Matrix & Target Time (e.g. June 15th, 10 AM)" required>
-                <input type="text" name="venue" placeholder="Structural Campus Physical Venue location" required>
-                <textarea name="description" placeholder="Provide clear timeline summaries, criteria rules, entry profiles required, and overview..." required></textarea>
-                <input type="number" name="reward_points" placeholder="Target Activity Points allocation standard" min="0" required>
-                <button type="submit" class="btn-filter-search event-submit-btn">Publish Event Notice Node</button>
+                <input type="text" name="title" placeholder="Event / Hackathon Name" required>
+                <input type="text" name="organizer" placeholder="Host Organizers Group Name" required>
+                <input type="text" name="date_time" placeholder="Date Schedule and Timeline Metrics" required>
+                <input type="text" name="venue" placeholder="Structural Campus Physical Venue Location" required>
+                <textarea name="description" placeholder="Provide complete event criteria guidelines..." required></textarea>
+                <input type="number" name="reward_points" placeholder="Target Activity Points Standard Allocation" required>
+                <button type="submit" class="btn-filter-search" style="background-color:#f59e0b;">Deploy Event Track Node</button>
                 <button type="button" onclick="toggleModal('eventModal', false)" class="cancel-modal-btn">Dismiss Window</button>
             </form>
         </div>
     </div>
 
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-header" onclick="toggleChat()">
-            <h4>💬 CrewFinder System Assistant</h4>
-        </div>
-        <div class="chat-body" id="chatBody">
-            <div class="msg bot">System interface synchronized. Ask me queries about events, squads, or platform navigation routing profiles.</div>
-        </div>
-        <div class="chat-footer">
-            <input type="text" id="chatInput" placeholder="Write pipeline messaging command...">
-            <button onclick="sendChatMessage()">Send</button>
-        </div>
-    </div>
-
     <script>
-        function toggleChat() {
-            document.getElementById('chatWidget').classList.toggle('open');
-        }
+        var activeChatPartner = "";
+
+        function toggleChat() { document.getElementById('chatWidget').classList.toggle('open'); }
+        
         function sendChatMessage() {
             var input = document.getElementById('chatInput');
             var body = document.getElementById('chatBody');
             if(!input.value.trim()) return;
             body.innerHTML += `<div class="msg user">${input.value}</div>`;
-            var userText = input.value;
-            input.value = '';
-            body.scrollTop = body.scrollHeight;
+            var txt = input.value; input.value = ''; body.scrollTop = body.scrollHeight;
 
             fetch('/api/chatbot', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: userText})
-            })
-            .then(res => res.json())
-            .then(data => {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: txt})
+            }).then(res => res.json()).then(data => {
                 body.innerHTML += `<div class="msg bot">${data.reply}</div>`;
                 body.scrollTop = body.scrollHeight;
             });
         }
-        function toggleModal(modalId, show) {
-            document.getElementById(modalId).style.display = show ? 'flex' : 'none';
+
+        function openChatPipeline(username) {
+            {% if not current_user.is_authenticated %}
+                alert("Please authenticate into your workspace hub account before establishing live data streams.");
+                return;
+            {% endif %}
+            activeChatPartner = username;
+            document.getElementById('chatPartnerName').innerText = "💬 Connect: @" + username;
+            document.getElementById('peerChatPanel').style.display = 'block';
+            fetchPeerMessages();
         }
+
+        function fetchPeerMessages() {
+            if(!activeChatPartner) return;
+            fetch('/api/messages?partner=' + activeChatPartner)
+            .then(res => res.json())
+            .then(data => {
+                var body = document.getElementById('peerChatBody');
+                body.innerHTML = "";
+                data.forEach(m => {
+                    var cls = m.sender === "{{ current_user.username }}" ? "user" : "bot";
+                    body.innerHTML += `<div class="msg ${cls}"><strong>${m.sender}:</strong> ${m.content} <span style="font-size:10px; opacity:0.6; display:block;">${m.time}</span></div>`;
+                });
+                body.scrollTop = body.scrollHeight;
+            });
+        }
+
+        function sendPeerMessage() {
+            var input = document.getElementById('peerChatInput');
+            if(!input.value.trim() || !activeChatPartner) return;
+            
+            fetch('/api/messages', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({recipient_username: activeChatPartner, content: input.value})
+            }).then(() => {
+                input.value = "";
+                fetchPeerMessages();
+            });
+        }
+
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+
+        // Pool live updates every 3 seconds for continuous peer chat streams
+        setInterval(fetchPeerMessages, 3000);
     </script>
 </body>
 </html>

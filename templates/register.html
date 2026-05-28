@@ -3,70 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder Hub - Build Student Portfolio</title>
+    <title>CrewFinder Hub - Gateway Registry</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="background-color:#0f172a;">
-    <div class="login-container" style="max-width:1100px; margin:40px auto; border-radius:16px; border:1px solid #334155; overflow:hidden;">
-        <div class="login-branding">
-            <div class="branding-content">
-                <h2>CrewFinder Hub Engine</h2>
-                <p>Register your student record details now to instantly construct an architectural work portfolio visible across MMU peer ecosystems.</p>
-            </div>
+<body style="background-color:#0f172a; padding:60px 20px;">
+    <div class="login-container" style="max-width:450px; margin:0 auto; background-color:#1e293b; padding:32px; border-radius:16px; border:1px solid #334155; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);">
+        <div class="form-header" style="text-align:center; margin-bottom:24px;">
+            <h2 style="font-size:1.75rem; font-weight:800; color:white;">Gateway Registration</h2>
+            <p style="color:#94a3b8; font-size:0.9rem;">Register a baseline user node inside our system directory.</p>
         </div>
 
-        <div class="login-form-section" style="max-width:100%; width:600px; background-color:#1e293b;">
-            <div class="form-wrapper" style="max-width:100%;">
-                <div class="form-header">
-                    <h2>Construct Student Portfolio</h2>
-                    <p>Provide your structural parameters to establish your talent profile card.</p>
-                </div>
-
-                <form action="{{ url_for('register') }}" method="POST">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                        <div class="input-group">
-                            <label>Username Handle</label>
-                            <input type="text" name="username" placeholder="e.g. Divyyeash" required>
-                        </div>
-                        <div class="input-group">
-                            <label>MMU Mailing Address</label>
-                            <input type="email" name="email" placeholder="id@student.mmu.edu.my" required>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Account Security Access Password</label>
-                        <input type="password" name="password" placeholder="••••••••" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Target Course / Degree Field Specialization</label>
-                        <input type="text" name="course" placeholder="e.g. Bachelor of Computer Science (Data Science)" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Current Academic Term Matrix Status</label>
-                        <input type="text" name="semester" placeholder="e.g. Trimester 2, Year 2" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Core Matrix Technical Skill Sets (Comma-separated values)</label>
-                        <input type="text" name="skills" placeholder="e.g. Python, Flask, UI Design, CSS, Figma" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Professional Biography Overview Statement</label>
-                        <textarea name="bio" style="width:100%; background-color:#0f172a; border:1px solid #334155; border-radius:8px; color:white; padding:12px; height:80px; resize:none;" placeholder="Tell potential teammates about your interests or project goals..." required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-submit" style="margin-top:12px;">Deploy Account Node & Portfolio</button>
-                </form>
-
-                <div class="form-footer">
-                    <p>Already mapped into our registry system? <a href="{{ url_for('login') }}">Access Node Space Here</a></p>
-                </div>
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="input-group">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Username Handle</label>
+                <input type="text" name="username" placeholder="Choose unique handle" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
             </div>
+            <div class="input-group" style="margin-top:16px;">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">MMU Mail Allocation Address</label>
+                <input type="email" name="email" placeholder="username@student.mmu.edu.my" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
+            </div>
+            <div class="input-group" style="margin-top:16px;">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Security Access Password</label>
+                <input type="password" name="password" placeholder="••••••••" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
+            </div>
+            <button type="submit" class="btn-submit" style="width:100%; padding:14px; background-color:#6366f1; color:white; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:24px;">Deploy User Registry Node</button>
+        </form>
+        <div class="form-footer" style="text-align:center; margin-top:20px; font-size:0.88rem; color:#94a3b8;">
+            <p>Already mapped into our tracking schema? <a href="{{ url_for('login') }}" style="color:#6366f1; text-decoration:none; font-weight:600;">Sign In Here</a></p>
         </div>
     </div>
 </body>

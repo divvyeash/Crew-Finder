@@ -3,51 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder - Login</title>
+    <title>CrewFinder Hub - Mount Session</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-branding">
-            <div class="branding-content">
-                <h2>CrewFinder</h2>
-                <p>Find your perfect team, build incredible projects together.</p>
-            </div>
+<body style="background-color:#0f172a; padding:60px 20px;">
+    <div class="login-container" style="max-width:450px; margin:0 auto; background-color:#1e293b; padding:32px; border-radius:16px; border:1px solid #334155; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);">
+        <div class="form-header" style="text-align:center; margin-bottom:24px;">
+            <h2 style="font-size:1.75rem; font-weight:800; color:white;">Sign Into Workspace</h2>
+            <p style="color:#94a3b8; font-size:0.9rem;">Provide your credentials to establish data syncing streams.</p>
         </div>
 
-        <div class="login-form-section">
-            <div class="form-wrapper">
-                <div class="form-header">
-                    <h2>Welcome Back</h2>
-                    <p>Please enter your details to sign in.</p>
-                </div>
-
-                <form action="{{ url_for('login') }}" method="POST">
-                    <div class="input-group">
-                        <label for="username">Username or Email</label>
-                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-                    </div>
-
-                    <div class="form-actions">
-                        <label class="remember-me">
-                            <input type="checkbox" name="remember"> Remember me
-                        </label>
-                        <a href="#" class="forgot-password">Forgot password?</a>
-                    </div>
-
-                    <button type="submit" class="btn-submit">Sign In</button>
-                </form>
-
-                <div class="form-footer">
-                    <p>Don't have an account? <a href="{{ url_for('register') }}">Sign up for free</a></p>
-                </div>
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="input-group">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Username Handle</label>
+                <input type="text" name="username" placeholder="Username" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
             </div>
+            <div class="input-group" style="margin-top:16px;">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Password Key</label>
+                <input type="password" name="password" placeholder="••••••••" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
+            </div>
+            <button type="submit" class="btn-submit" style="width:100%; padding:14px; background-color:#0284c7; color:white; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:24px;">Initialize Workspace Connection</button>
+        </form>
+        <div class="form-footer" style="text-align:center; margin-top:20px; font-size:0.88rem; color:#94a3b8;">
+            <p>New candidate to the network? <a href="{{ url_for('register') }}" style="color:#0284c7; text-decoration:none; font-weight:600;">Create Registration Profile</a></p>
         </div>
     </div>
 </body>
