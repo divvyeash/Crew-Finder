@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder - Find Your MMU Project Team</title>
+    <title>CrewFinder Hub - MMU Portfolio Portfolio Connection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-body">
 
@@ -13,13 +13,14 @@
         <div class="nav-container">
             <a href="{{ url_for('index') }}" class="nav-logo">CrewFinder <span class="mmu-tag">MMU</span></a>
             <div class="nav-links">
-                <a href="{{ url_for('index') }}" class="active">Explore Hub</a>
+                <a href="{{ url_for('index', tab='crews') }}" class="{% if active_tab == 'crews' %}active{% endif %}">Explore Hub</a>
                 {% if current_user.is_authenticated %}
-                    <a href="#" onclick="toggleModal(true)">Create Team</a>
-                    <span style="color: #475569; font-weight:600;">Hi, {{ current_user.username }}</span>
-                    <a href="{{ url_for('logout') }}" class="btn-nav-login" style="background-color: #ef4444;">Sign Out</a>
+                    <a href="#" onclick="toggleModal('projectModal', true)">Recruit Crew</a>
+                    <a href="#" onclick="toggleModal('eventModal', true)">Host Event</a>
+                    <span class="user-pill">⚡ {{ current_user.username }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-nav-login logout-btn">Sign Out</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
+                    <a href="{{ url_for('login') }}" class="btn-nav-login">Join Hub Workspace</a>
                 {% endif %}
             </div>
         </div>
@@ -27,98 +28,168 @@
 
     <main class="dashboard-container">
         <header class="dashboard-hero">
-            <h1>Find your perfect MMU group partners</h1>
-            <p>Connect with students across faculties to build awesome assignments together.</p>
+            <h1>MMU Peer Innovation & Co-Working Network</h1>
+            <p>Publish project requirements, deploy interactive events, and discover skilled student portfolios across all faculties.</p>
         </header>
 
+        <div class="hub-tabs-container">
+            <a href="{{ url_for('index', tab='crews', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'crews' %}active{% endif %}">🔥 Active Recruitment Squads</a>
+            <a href="{{ url_for('index', tab='events', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'events' %}active{% endif %}">🗓️ Campus Events Hub</a>
+            <a href="{{ url_for('index', tab='portfolios', search=search_query, faculty=faculty_filter) }}" class="tab-link {% if active_tab == 'portfolios' %}active{% endif %}">🎓 Student Portfolios</a>
+        </div>
+
         <form method="GET" action="{{ url_for('index') }}" class="search-filter-section">
+            <input type="hidden" name="tab" value="{{ active_tab }}">
             <div class="search-box">
-                <input type="text" name="search" value="{{ search_query }}" placeholder="Search by subject code or keyword (e.g., TCP1201)...">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Filter dynamic space by keyword, skill, index parameter or title...">
             </div>
             <div class="filter-dropdowns">
                 <select name="faculty">
-                    <option value="">All Faculties</option>
-                    <option value="FCI" {% if faculty_filter == 'FCI' %}selected{% endif %}>FCI (Computing)</option>
-                    <option value="FOM" {% if faculty_filter == 'FOM' %}selected{% endif %}>FOM (Management)</option>
+                    <option value="">All Associated Faculties</option>
+                    <option value="FCI" {% if faculty_filter == 'FCI' %}selected{% endif %}>FCI (Computing Informatics)</option>
+                    <option value="FOM" {% if faculty_filter == 'FOM' %}selected{% endif %}>FOM (Faculty of Management)</option>
                 </select>
-                <button type="submit" class="btn-filter-search">Search Crews</button>
+                <button type="submit" class="btn-filter-search">Update Queries</button>
             </div>
         </form>
 
+        {% if active_tab == 'crews' %}
         <section class="listings-section">
-            <h2 class="section-title">Active Recruits</h2>
+            <h2 class="section-title">Open Collaboration Assignments</h2>
             <div class="listings-grid">
                 {% for project in projects %}
                 <div class="project-card">
                     <div class="card-header">
                         <span class="subject-badge">{{ project.subject_code }}</span>
-                        <span class="spots-badge open">{{ project.slots_open }} Slots Open</span>
+                        <span class="spots-badge open">{{ project.slots_open }} Slots Remaining</span>
                     </div>
                     <h3>{{ project.title }}</h3>
                     <p class="project-desc">{{ project.description }}</p>
                     <div class="project-tags">
-                        {% for tag in project.tags.split(',') %}
-                            <span>{{ tag }}</span>
-                        {% endfor %}
+                        {% for tag in project.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}
                     </div>
                     <div class="card-footer">
-                        <span class="posted-by">By {{ project.author.username }}</span>
-                        <button class="btn-join" onclick="alert('Join request sent successfully!')">Request to Join</button>
+                        <span class="posted-by">Lead: <strong>{{ project.author.username }}</strong></span>
+                        <button class="btn-join" onclick="alert('Collaboration request safely routed to author workspace!')">Connect</button>
                     </div>
                 </div>
-                {% else %}
-                <p style="color: #64748b;">No teams found matching your search parameters.</p>
                 {% endfor %}
             </div>
         </section>
-    </main>
+        {% endif %}
 
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-header" onclick="toggleChat()">
-            <h4>💬 CrewFinder Assistant</h4>
-        </div>
-        <div class="chat-body" id="chatBody">
-            <div class="msg bot">Hi! Ask me anything about finding groups at MMU!</div>
-        </div>
-        <div class="chat-footer">
-            <input type="text" id="chatInput" placeholder="Ask assistant...">
-            <button onclick="sendChatMessage()">Send</button>
-        </div>
-    </div>
+        {% if active_tab == 'events' %}
+        <section class="listings-section">
+            <h2 class="section-title">Campus Events & Challenges</h2>
+            <div class="listings-grid">
+                {% for event in events %}
+                <div class="project-card event-card">
+                    <div class="card-header">
+                        <span class="subject-badge event-badge">🏆 Event Badge</span>
+                        <span class="spots-badge points-badge">+{{ event.reward_points }} MMU Points</span>
+                    </div>
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-meta-line">🏛️ Host: <strong>{{ event.organizer }}</strong></p>
+                    <p class="event-meta-line">📍 Location: {{ event.venue }}</p>
+                    <p class="event-meta-line">⏰ Timeline: {{ event.date_time }}</p>
+                    <p class="project-desc" style="margin-top:12px;">{{ event.description }}</p>
+                    <div class="card-footer">
+                        <span class="posted-by">Posted by: {{ event.creator.username }}</span>
+                        <button class="btn-join event-btn" onclick="alert('Seat allocation confirmed! Ticket code dispatched via MMU Mailbox.')">Register Ticket</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if active_tab == 'portfolios' %}
+        <section class="listings-section">
+            <h2 class="section-title">Talent Network Portfolios</h2>
+            <div class="listings-grid">
+                {% for user in users %}
+                <div class="project-card portfolio-card">
+                    <div class="portfolio-top-block">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.avatar_seed }}" alt="User Core Profile Avatar" class="portfolio-avatar">
+                        <div>
+                            <h3>{{ user.username }}</h3>
+                            <p class="portfolio-subtext">{{ user.course }}</p>
+                            <p class="portfolio-subtext academic-term">⏳ {{ user.semester }}</p>
+                        </div>
+                    </div>
+                    <p class="project-desc profile-bio-area">"{{ user.bio }}"</p>
+                    <div class="portfolio-skills-label">Expertise Core Matrix:</div>
+                    <div class="project-tags skills-tags">
+                        {% for skill in user.skills.split(',') %}<span>🛠️ {{ skill }}</span>{% endfor %}
+                    </div>
+                    <div class="card-footer">
+                        <span class="posted-by">{{ user.email }}</span>
+                        <a href="mailto:{{ user.email }}" class="btn-join portfolio-btn">Hire / Message</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
 
     <div class="modal-overlay" id="projectModal" style="display:none;">
         <div class="modal-box">
-            <h3>Recruit Teammates</h3>
+            <h3>Publish New Collaboration Directive</h3>
             <form action="{{ url_for('create_project') }}" method="POST">
-                <input type="text" name="subject_code" placeholder="Subject Code (e.g. TCP1201)" required><br>
-                <input type="text" name="title" placeholder="Project Name" required><br>
-                <textarea name="description" placeholder="Describe what skills you need..." required></textarea><br>
-                <input type="text" name="tags" placeholder="Tags (comma-separated, e.g. FCI,Python,Flask)" required><br>
-                <input type="number" name="slots_open" placeholder="Available Slots" min="1" required><br>
-                <button type="submit" class="btn-filter-search">Publish Listing</button>
-                <button type="button" onclick="toggleModal(false)" style="background:#64748b; margin-top:10px;" class="btn-filter-search">Cancel</button>
+                <input type="text" name="subject_code" placeholder="Subject Code Parameters (e.g. TCP1201)" required>
+                <input type="text" name="title" placeholder="Project Workspace Title Name" required>
+                <textarea name="description" placeholder="Provide clear task details and explicit skill sets needed to fill the empty seats..." required></textarea>
+                <input type="text" name="tags" placeholder="Tech Tags / Faculty (e.g. FCI,Python,Flask)" required>
+                <input type="number" name="slots_open" placeholder="Available Seating Openings" min="1" required>
+                <button type="submit" class="btn-filter-search">Deploy Team Recruitment Block</button>
+                <button type="button" onclick="toggleModal('projectModal', false)" class="cancel-modal-btn">Dismiss Window</button>
             </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="eventModal" style="display:none;">
+        <div class="modal-box">
+            <h3>Deploy New Campus Event Tracking Node</h3>
+            <form action="{{ url_for('create_event') }}" method="POST">
+                <input type="text" name="title" placeholder="Event / Hackathon Operational Title" required>
+                <input type="text" name="organizer" placeholder="Host Organizers (e.g. FCI Society, SRC)" required>
+                <input type="text" name="date_time" placeholder="Date Schedule Matrix & Target Time (e.g. June 15th, 10 AM)" required>
+                <input type="text" name="venue" placeholder="Structural Campus Physical Venue location" required>
+                <textarea name="description" placeholder="Provide clear timeline summaries, criteria rules, entry profiles required, and overview..." required></textarea>
+                <input type="number" name="reward_points" placeholder="Target Activity Points allocation standard" min="0" required>
+                <button type="submit" class="btn-filter-search event-submit-btn">Publish Event Notice Node</button>
+                <button type="button" onclick="toggleModal('eventModal', false)" class="cancel-modal-btn">Dismiss Window</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" onclick="toggleChat()">
+            <h4>💬 CrewFinder System Assistant</h4>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot">System interface synchronized. Ask me queries about events, squads, or platform navigation routing profiles.</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Write pipeline messaging command...">
+            <button onclick="sendChatMessage()">Send</button>
         </div>
     </div>
 
     <script>
         function toggleChat() {
-            var widget = document.getElementById('chatWidget');
-            widget.classList.toggle('open');
+            document.getElementById('chatWidget').classList.toggle('open');
         }
-
         function sendChatMessage() {
             var input = document.getElementById('chatInput');
             var body = document.getElementById('chatBody');
             if(!input.value.trim()) return;
-
-            // Render User Text
             body.innerHTML += `<div class="msg user">${input.value}</div>`;
             var userText = input.value;
             input.value = '';
             body.scrollTop = body.scrollHeight;
 
-            // Hit Flask backend Chatbot Endpoint
             fetch('/api/chatbot', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -130,9 +201,8 @@
                 body.scrollTop = body.scrollHeight;
             });
         }
-
-        function toggleModal(show) {
-            document.getElementById('projectModal').style.display = show ? 'flex' : 'none';
+        function toggleModal(modalId, show) {
+            document.getElementById(modalId).style.display = show ? 'flex' : 'none';
         }
     </script>
 </body>
