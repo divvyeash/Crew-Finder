@@ -13,113 +13,127 @@
         <div class="nav-container">
             <a href="{{ url_for('index') }}" class="nav-logo">CrewFinder <span class="mmu-tag">MMU</span></a>
             <div class="nav-links">
-                <a href="#" class="active">Explore Hub</a>
-                <a href="#">My Crews</a>
-                <a href="#">Create Team</a>
-                <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
+                <a href="{{ url_for('index') }}" class="active">Explore Hub</a>
+                {% if current_user.is_authenticated %}
+                    <a href="#" onclick="toggleModal(true)">Create Team</a>
+                    <span style="color: #475569; font-weight:600;">Hi, {{ current_user.username }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-nav-login" style="background-color: #ef4444;">Sign Out</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
     <main class="dashboard-container">
-        
         <header class="dashboard-hero">
             <h1>Find your perfect MMU group partners</h1>
-            <p>Connect with students from FCI, FOE, FOM, or FAC to build awesome projects together.</p>
+            <p>Connect with students across faculties to build awesome assignments together.</p>
         </header>
 
-        <section class="stats-row">
-            <div class="stat-card">
-                <h3>142</h3>
-                <p>Active Crews Looking for Members</p>
-            </div>
-            <div class="stat-card">
-                <h3>12</h3>
-                <p>Faculties & Specializations</p>
-            </div>
-            <div class="stat-card">
-                <h3>450+</h3>
-                <p>Students Connected This Trimester</p>
-            </div>
-        </section>
-
-        <section class="search-filter-section">
+        <form method="GET" action="{{ url_for('index') }}" class="search-filter-section">
             <div class="search-box">
-                <input type="text" placeholder="Search by subject code or project name (e.g., ECP2046, Mini IT)...">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search by subject code or keyword (e.g., TCP1201)...">
             </div>
             <div class="filter-dropdowns">
                 <select name="faculty">
                     <option value="">All Faculties</option>
-                    <option value="fci">FCI (Computing)</option>
-                    <option value="foe">FOE (Engineering)</option>
-                    <option value="fom">FOM (Management)</option>
+                    <option value="FCI" {% if faculty_filter == 'FCI' %}selected{% endif %}>FCI (Computing)</option>
+                    <option value="FOM" {% if faculty_filter == 'FOM' %}selected{% endif %}>FOM (Management)</option>
                 </select>
-                <button class="btn-filter-search">Search Crews</button>
+                <button type="submit" class="btn-filter-search">Search Crews</button>
             </div>
-        </section>
+        </form>
 
         <section class="listings-section">
-            <h2 class="section-title">Trending Teams Recruiting Now</h2>
-            
+            <h2 class="section-title">Active Recruits</h2>
             <div class="listings-grid">
-                
+                {% for project in projects %}
                 <div class="project-card">
                     <div class="card-header">
-                        <span class="subject-badge">TCP1201</span>
-                        <span class="spots-badge open">2 Slots Open</span>
+                        <span class="subject-badge">{{ project.subject_code }}</span>
+                        <span class="spots-badge open">{{ project.slots_open }} Slots Open</span>
                     </div>
-                    <h3>Mini IT Project (Web App)</h3>
-                    <p class="project-desc">Building a peer-to-peer marketplace app using Flask. Looking for someone strong in frontend design/CSS layout!</p>
+                    <h3>{{ project.title }}</h3>
+                    <p class="project-desc">{{ project.description }}</p>
                     <div class="project-tags">
-                        <span>Flask</span>
-                        <span>CSS/HTML</span>
-                        <span>FCI</span>
+                        {% for tag in project.tags.split(',') %}
+                            <span>{{ tag }}</span>
+                        {% endfor %}
                     </div>
                     <div class="card-footer">
-                        <span class="posted-by">By Divyyeash</span>
-                        <button class="btn-join">Request to Join</button>
+                        <span class="posted-by">By {{ project.author.username }}</span>
+                        <button class="btn-join" onclick="alert('Join request sent successfully!')">Request to Join</button>
                     </div>
                 </div>
-
-                <div class="project-card">
-                    <div class="card-header">
-                        <span class="subject-badge">PRG2111</span>
-                        <span class="spots-badge open">1 Slot Open</span>
-                    </div>
-                    <h3>OOP Assignment Group 4</h3>
-                    <p class="project-desc">Developing a Java-based inventory system. Core structure is down, need assistance managing database operations backend hooks.</p>
-                    <div class="project-tags">
-                        <span>Java</span>
-                        <span>SQLite</span>
-                        <span>FCI</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="posted-by">By Shivanie</span>
-                        <button class="btn-join">Request to Join</button>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <div class="card-header">
-                        <span class="subject-badge">ENT3011</span>
-                        <span class="spots-badge full">Full</span>
-                    </div>
-                    <h3>Entrepreneurship Pitch Deck</h3>
-                    <p class="project-desc">Creating a business mockup framework for an eco-friendly tech solution. Looking to practice prototyping with UI wireframes.</p>
-                    <div class="project-tags">
-                        <span>Figma</span>
-                        <span>FOM</span>
-                        <span>Business Plan</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="posted-by">By Kumar</span>
-                        <button class="btn-join disabled" disabled>View Details</button>
-                    </div>
-                </div>
-
+                {% else %}
+                <p style="color: #64748b;">No teams found matching your search parameters.</p>
+                {% endfor %}
             </div>
         </section>
-
     </main>
+
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" onclick="toggleChat()">
+            <h4>💬 CrewFinder Assistant</h4>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot">Hi! Ask me anything about finding groups at MMU!</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask assistant...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="projectModal" style="display:none;">
+        <div class="modal-box">
+            <h3>Recruit Teammates</h3>
+            <form action="{{ url_for('create_project') }}" method="POST">
+                <input type="text" name="subject_code" placeholder="Subject Code (e.g. TCP1201)" required><br>
+                <input type="text" name="title" placeholder="Project Name" required><br>
+                <textarea name="description" placeholder="Describe what skills you need..." required></textarea><br>
+                <input type="text" name="tags" placeholder="Tags (comma-separated, e.g. FCI,Python,Flask)" required><br>
+                <input type="number" name="slots_open" placeholder="Available Slots" min="1" required><br>
+                <button type="submit" class="btn-filter-search">Publish Listing</button>
+                <button type="button" onclick="toggleModal(false)" style="background:#64748b; margin-top:10px;" class="btn-filter-search">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            var widget = document.getElementById('chatWidget');
+            widget.classList.toggle('open');
+        }
+
+        function sendChatMessage() {
+            var input = document.getElementById('chatInput');
+            var body = document.getElementById('chatBody');
+            if(!input.value.trim()) return;
+
+            // Render User Text
+            body.innerHTML += `<div class="msg user">${input.value}</div>`;
+            var userText = input.value;
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            // Hit Flask backend Chatbot Endpoint
+            fetch('/api/chatbot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: userText})
+            })
+            .then(res => res.json())
+            .then(data => {
+                body.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+                body.scrollTop = body.scrollHeight;
+            });
+        }
+
+        function toggleModal(show) {
+            document.getElementById('projectModal').style.display = show ? 'flex' : 'none';
+        }
+    </script>
 </body>
 </html>
