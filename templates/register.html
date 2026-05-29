@@ -2,35 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrewFinder Hub - Gateway Registry</title>
+    <title>CrewFinder - Sign Up</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="background-color:#0f172a; padding:60px 20px;">
-    <div class="login-container" style="max-width:450px; margin:0 auto; background-color:#1e293b; padding:32px; border-radius:16px; border:1px solid #334155; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);">
+<body style="background-color:#0f172a; padding:80px 20px;">
+    <div class="login-container" style="max-width:400px; margin:0 auto; background-color:#1e293b; padding:32px; border-radius:16px; border:1px solid #334155; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
+        
         <div class="form-header" style="text-align:center; margin-bottom:24px;">
-            <h2 style="font-size:1.75rem; font-weight:800; color:white;">Gateway Registration</h2>
-            <p style="color:#94a3b8; font-size:0.9rem;">Register a baseline user node inside our system directory.</p>
+            <h2 style="font-size:1.6rem; font-weight:800; color:white;">Sign Up</h2>
+            <p style="color:#94a3b8; font-size:0.9rem;">Register a new student account.</p>
         </div>
 
         <form action="{{ url_for('register') }}" method="POST">
             <div class="input-group">
-                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Username Handle</label>
-                <input type="text" name="username" placeholder="Choose unique handle" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.85rem;">Username</label>
+                <input type="text" name="username" placeholder="Choose a username" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
             </div>
             <div class="input-group" style="margin-top:16px;">
-                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">MMU Mail Allocation Address</label>
-                <input type="email" name="email" placeholder="username@student.mmu.edu.my" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.85rem;">MMU Student Email</label>
+                <input type="email" name="email" placeholder="student_id@student.mmu.edu.my" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
             </div>
             <div class="input-group" style="margin-top:16px;">
-                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.88rem;">Security Access Password</label>
+                <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.85rem;">Password</label>
                 <input type="password" name="password" placeholder="••••••••" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">
             </div>
-            <button type="submit" class="btn-submit" style="width:100%; padding:14px; background-color:#6366f1; color:white; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:24px;">Deploy User Registry Node</button>
+            <button type="submit" class="btn-submit" style="width:100%; padding:14px; background-color:#6366f1; color:white; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:24px;">Create Account Node</button>
         </form>
-        <div class="form-footer" style="text-align:center; margin-top:20px; font-size:0.88rem; color:#94a3b8;">
-            <p>Already mapped into our tracking schema? <a href="{{ url_for('login') }}" style="color:#6366f1; text-decoration:none; font-weight:600;">Sign In Here</a></p>
+        <div class="form-footer" style="text-align:center; margin-top:20px; font-size:0.85rem; color:#94a3b8;">
+            <p>Already have an account? <a href="{{ url_for('login') }}" style="color:#6366f1; text-decoration:none; font-weight:600;">Sign In Instead</a></p>
         </div>
     </div>
 </body>

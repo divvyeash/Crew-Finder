@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from models import db, User, Project, Event, Message
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mmu_crewfinder_super_secret_key'
+app.config['SECRET_KEY'] = 'crewfinder_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crewfinder.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -18,51 +18,41 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- PLATFORM VIEW ROUTERS & ADVANCED SPECIFICATION FILTERS ---
 @app.route('/')
 def index():
-    search_query = request.args.get('search', '').strip()
-    faculty_filter = request.args.get('faculty', '')
+    search = request.args.get('search', '').strip()
     course_filter = request.args.get('course', '')
     skill_filter = request.args.get('skill', '')
-    active_tab = request.args.get('tab', 'crews')
+    current_tab = request.args.get('tab', 'groups')
 
-    # 1. Gather Projects (Crews) with filtering
-    p_query = Project.query
-    if search_query:
-        p_query = p_query.filter((Project.title.contains(search_query)) | (Project.subject_code.contains(search_query)))
-    if faculty_filter:
-        p_query = p_query.filter(Project.tags.contains(faculty_filter.upper()))
-    projects = p_query.order_by(Project.date_posted.desc()).all()
+    group_query = Project.query
+    if search:
+        group_query = group_query.filter(Project.title.contains(search) | Project.subject_code.contains(search))
+    groups = group_query.order_by(Project.date_posted.desc()).all()
 
-    # 2. Gather Events
-    events = Event.query.order_by(Event.date_created.desc()).all()
+    event_query = Event.query
+    if search:
+        event_query = event_query.filter(Event.title.contains(search) | Event.description.contains(search))
+    events = event_query.order_by(Event.date_created.desc()).all()
 
-    # 3. Gather Portfolios with Advanced Specification Filters
-    u_query = User.query
+    profile_query = User.query
     if course_filter:
-        u_query = u_query.filter(User.course.contains(course_filter))
+        profile_query = profile_query.filter(User.course.contains(course_filter))
     if skill_filter:
-        u_query = u_query.filter(User.skills.contains(skill_filter))
-    if search_query:
-        u_query = u_query.filter((User.username.contains(search_query)) | (User.skills.contains(search_query)))
-    users = u_query.all()
+        profile_query = profile_query.filter(User.skills.contains(skill_filter))
+    if search:
+        profile_query = profile_query.filter(User.username.contains(search) | User.skills.contains(search))
+    profiles = profile_query.all()
 
-    # Fetch unique courses and skills available for filter dropdown menus
-    all_courses = sorted(list(set([u.course for u in User.query.all() if u.course])))
-    
-    # Calculate unique individual skills across entire database
-    raw_skills = [u.skills.split(',') for u in User.query.all() if u.skills]
-    all_skills = sorted(list(set([skill.strip() for sublist in raw_skills for skill in sublist])))
+    all_courses = sorted(list(set([u.course for u in User.query.all() if u.course and u.course != "Not specified yet"])))
+    all_skills = sorted(list(set([s.strip() for u in User.query.all() if u.skills for s in u.skills.split(',') if u.skills != "None listed yet"])))
 
     return render_template('index.html', 
-                           projects=projects, events=events, users=users, 
+                           groups=groups, events=events, profiles=profiles, 
                            all_courses=all_courses, all_skills=all_skills,
-                           search_query=search_query, faculty_filter=faculty_filter,
-                           course_filter=course_filter, skill_filter=skill_filter,
-                           active_tab=active_tab)
+                           search_query=search, course_filter=course_filter, skill_filter=skill_filter,
+                           current_tab=current_tab)
 
-# --- PORTFOLIO INITIALIZATION & PROFILE EDITOR ---
 @app.route('/create-profile', methods=['GET', 'POST'])
 @login_required
 def create_profile():
@@ -71,17 +61,13 @@ def create_profile():
         current_user.semester = request.form.get('semester')
         current_user.skills = request.form.get('skills')
         current_user.bio = request.form.get('bio')
-        
-        # Select an avatar style seed based on skill focus
-        current_user.avatar_seed = request.form.get('avatar_seed', 'bottts')
+        current_user.avatar_name = request.form.get('avatar_name', 'bottts')
         
         db.session.commit()
-        flash('Your student profile card has been broadcasted to the hub workspace!', 'success')
-        return redirect(url_for('index', tab='portfolios'))
+        return redirect(url_for('index', tab='profiles'))
         
     return render_template('create_profile.html')
 
-# --- AUTHENTICATION FLOW NODES ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -91,10 +77,7 @@ def login():
 
         if user and user.check_password(password):
             login_user(user)
-            flash(f'Session mounted cleanly. Welcome back, {user.username}!', 'success')
             return redirect(url_for('index'))
-        
-        flash('Invalid credentials configuration.', 'error')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -104,39 +87,32 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
-            flash('Account credential configuration already exists.', 'error')
-            return redirect(url_for('register'))
-
-        new_user = User(username=username, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # System automatically logs in user and routes them to finish their portfolio details
-        login_user(new_user)
-        return redirect(url_for('create_profile'))
+        if not User.query.filter_by(username=username).first() and not User.query.filter_by(email=email).first():
+            new_user = User(username=username, email=email)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user)
+            return redirect(url_for('create_profile'))
     return render_template('register.html')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('Session unmounted safely. See you next sprint!', 'info')
     return redirect(url_for('index'))
 
-# --- RECRUITMENT & EVENT MANAGEMENT NODES ---
-@app.route('/create-project', methods=['POST'])
+@app.route('/create-group', methods=['POST'])
 @login_required
-def create_project():
-    new_project = Project(
+def create_group():
+    new_group = Project(
         subject_code=request.form.get('subject_code'), title=request.form.get('title'),
         description=request.form.get('description'), tags=request.form.get('tags'),
         slots_open=int(request.form.get('slots_open')), user_id=current_user.id
     )
-    db.session.add(new_project)
+    db.session.add(new_group)
     db.session.commit()
-    return redirect(url_for('index', tab='crews'))
+    return redirect(url_for('index', tab='groups'))
 
 @app.route('/create-event', methods=['POST'])
 @login_required
@@ -144,58 +120,60 @@ def create_event():
     new_event = Event(
         title=request.form.get('title'), organizer=request.form.get('organizer'),
         date_time=request.form.get('date_time'), venue=request.form.get('venue'),
-        description=request.form.get('description'), reward_points=int(request.form.get('reward_points', 50)),
+        description=request.form.get('description'), mmu_points=int(request.form.get('mmu_points', 50)),
         user_id=current_user.id
     )
     db.session.add(new_event)
     db.session.commit()
     return redirect(url_for('index', tab='events'))
 
-# --- REAL-TIME PEER MESSAGING FEATURES ---
 @app.route('/api/messages', methods=['GET', 'POST'])
 @login_required
 def handle_messages():
     if request.method == 'POST':
         data = request.json
-        recipient = User.query.filter_by(username=data.get('recipient_username')).first()
-        if not recipient:
-            return jsonify({"error": "Recipient user profile node not located"}), 404
-            
-        new_msg = Message(sender_id=current_user.id, recipient_id=recipient.id, content=data.get('content'))
+        new_msg = Message(sender_username=current_user.username, receiver_username=data.get('receiver'), text_content=data.get('message'))
         db.session.add(new_msg)
         db.session.commit()
         return jsonify({"success": True})
 
-    # GET: Fetch messages exchanged between logged-in user and selected target partner
-    partner_username = request.args.get('partner')
-    partner = User.query.filter_by(username=partner_username).first()
-    if not partner:
-        return jsonify([])
+    chat_partner = request.args.get('partner')
+    chat_history = Message.query.filter(
+        ((Message.sender_username == current_user.username) & (Message.receiver_username == chat_partner)) |
+        ((Message.sender_username == chat_partner) & (Message.receiver_username == current_user.username))
+    ).order_by(Message.time_sent.asc()).all()
 
-    messages = Message.query.filter(
-        ((Message.sender_id == current_user.id) & (Message.recipient_id == partner.id)) |
-        ((Message.sender_id == partner.id) & (Message.recipient_id == current_user.id))
-    ).order_by(Message.timestamp.asc()).all()
+    return jsonify([{"sender": m.sender_username, "message": m.text_content, "time": m.time_sent.strftime("%I:%M %p")} for m in chat_history])
 
-    return jsonify([{"sender": m.sender.username, "content": m.content, "time": m.timestamp.strftime("%I:%M %p")} for m in messages])
-
-# --- AI CHATBOT SYSTEM ASSISTANT ---
 @app.route('/api/chatbot', methods=['POST'])
 def chatbot():
-    user_message = request.json.get('message', '').lower()
-    
-    if 'hello' in user_message or 'hi' in user_message:
-        reply = "Hello! I am your automated CrewFinder Assistant. Use the dashboard tabs to view project teams, check events, or build your portfolio profile card."
-    elif 'filter' in user_message or 'specification' in user_message:
-        reply = "You can filter peer candidates in the 'Student Portfolios' tab using our specification selectors (Course and Tech Skill matrices)."
-    elif 'message' in user_message or 'chat' in user_message:
-        reply = "To message a peer directly, click the 'Open Chat Pipeline' option on any profile card to start a secure, real-time message stream."
+    user_msg = request.json.get('message', '').lower()
+    if 'filter' in user_msg or 'search' in user_msg:
+        reply = "Go to the 'Student Portfolios' tab to filter profiles by Course or Skills."
+    elif 'message' in user_msg or 'chat' in user_msg:
+        reply = "Click 'Message Leader' or 'Send Message' on any card to open a private chat."
     else:
-        reply = "I'm here to streamline your team formation! Try asking about 'how to filter specifications' or 'sending direct peer messages'."
-        
+        reply = "Hi! I'm the CrewFinder Assistant. Ask me about finding groups or chatting with teammates."
     return jsonify({"reply": reply})
 
-if __name__ == '__main__':
+def add_sample_data():
     with app.app_context():
         db.create_all()
+        if User.query.count() == 0:
+            u1 = User(username="Divyyeash", email="divyyeash@student.mmu.edu.my", course="Computer Science", semester="Trimester 2, Year 2", bio="Python backend coder.", skills="Python, Flask, SQL", avatar_name="divy")
+            u1.set_password("password123")
+            u2 = User(username="Shivanie", email="shivanie@student.mmu.edu.my", course="Information Technology", semester="Trimester 1, Year 3", bio="Frontend visual designer.", skills="HTML, CSS, Figma", avatar_name="shivi")
+            u2.set_password("password123")
+            db.session.add_all([u1, u2])
+            db.session.commit()
+
+            g1 = Project(subject_code="TCP1201", title="Mini IT Project", description="Looking for a frontend designer!", tags="Flask, CSS", slots_open=2, user_id=u1.id)
+            db.session.add(g1)
+            
+            e1 = Event(title="MMU Innovators Hackathon", organizer="FCI Club", date_time="June 12th @ 09:00 AM", venue="Dewan Canselor", description="A 48-hour challenge.", mmu_points=120, user_id=u1.id)
+            db.session.add(e1)
+            db.session.commit()
+
+if __name__ == '__main__':
+    add_sample_data()
     app.run(debug=True)
