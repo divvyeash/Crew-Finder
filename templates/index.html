@@ -29,6 +29,7 @@
     </nav>
 
     <main class="dashboard-container">
+        
         <form method="GET" action="{{ url_for('index') }}" class="search-filter-section">
             <input type="hidden" name="tab" value="{{ current_tab }}">
             <div class="search-box">
@@ -39,11 +40,15 @@
             <div style="display: flex; gap: 10px;">
                 <select name="course">
                     <option value="">Filter by Course</option>
-                    {% for course in all_courses %}<option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option>{% endfor %}
+                    {% for course in all_courses %}
+                        <option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option>
+                    {% endfor %}
                 </select>
                 <select name="skill">
                     <option value="">Filter by Skill</option>
-                    {% for skill in all_skills %}<option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option>{% endfor %}
+                    {% for skill in all_skills %}
+                        <option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option>
+                    {% endfor %}
                 </select>
             </div>
             {% endif %}
@@ -107,7 +112,9 @@
                     <p class="project-desc">"{{ profile.bio }}"</p>
                     <div class="project-tags">
                         {% if profile.skills != "None listed yet" %}
-                            {% for skill in profile.skills.split(',') %}<span>🛠️ {{ skill.strip() }}</span>{% endfor %}
+                            {% for skill in profile.skills.split(',') %}
+                                <span>🛠️ {{ skill.strip() }}</span>
+                            {% endfor %}
                         {% endif %}
                     </div>
                     <div class="card-footer">
@@ -130,16 +137,18 @@
         </div>
         <div class="chat-body" id="userChatBody"></div>
         <div class="chat-footer">
-            <input type="text" id="userChatInput" placeholder="Type a message...">
+            <input type="text" id="userChatInput" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendUserMessage()">
             <button onclick="sendUserMessage()">Send</button>
         </div>
     </div>
 
     <div class="chat-widget" id="aiChatBox">
         <div class="chat-header" onclick="toggleAIChat()"><h4>🤖 CrewFinder Assistant</h4></div>
-        <div class="chat-body" id="aiChatBody"><div class="msg bot">Hi! Ask me any questions about finding teams on CrewFinder.</div></div>
+        <div class="chat-body" id="aiChatBody">
+            <div class="msg bot">Hi! Ask me any questions about finding teams on CrewFinder.</div>
+        </div>
         <div class="chat-footer">
-            <input type="text" id="aiChatInput" placeholder="Ask assistant...">
+            <input type="text" id="aiChatInput" placeholder="Ask assistant..." onkeydown="if(event.key === 'Enter') sendAiMessage()">
             <button onclick="sendAiMessage()">Send</button>
         </div>
     </div>
@@ -176,21 +185,31 @@
     </div>
 
     <script>
+        // System variables & session context configuration
         var chatPartner = "";
+        const CURRENT_USER_NAME = "{{ current_user.username if current_user.is_authenticated else '' }}";
 
-        function toggleAIChat() { document.getElementById('aiChatBox').classList.toggle('open'); }
+        function toggleAIChat() { 
+            document.getElementById('aiChatBox').classList.toggle('open'); 
+        }
         
         function sendAiMessage() {
             var input = document.getElementById('aiChatInput');
             var body = document.getElementById('aiChatBody');
             if(!input.value.trim()) return;
+            
             body.innerHTML += `<div class="msg user">${input.value}</div>`;
-            var userText = input.value; input.value = ''; body.scrollTop = body.scrollHeight;
+            var userText = input.value; 
+            input.value = ''; 
+            body.scrollTop = body.scrollHeight;
 
             fetch('/api/chatbot', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({message: userText})
-            }).then(res => res.json()).then(data => {
+            })
+            .then(res => res.json())
+            .then(data => {
                 body.innerHTML += `<div class="msg bot">${data.reply}</div>`;
                 body.scrollTop = body.scrollHeight;
             });
@@ -208,14 +227,15 @@
         }
 
         function getMessages() {
-            if(!chatPartner) return;
+            if(!chatPartner) return; // Prevent routine executions if no chat layout active
+            
             fetch('/api/messages?partner=' + chatPartner)
             .then(res => res.json())
             .then(data => {
                 var body = document.getElementById('userChatBody');
                 body.innerHTML = "";
                 data.forEach(m => {
-                    var alignClass = m.sender === "{{ current_user.username }}" ? "user" : "bot";
+                    var alignClass = m.sender === CURRENT_USER_NAME ? "user" : "bot";
                     body.innerHTML += `<div class="msg ${alignClass}"><strong>${m.sender}:</strong> ${m.message} <span style="font-size:10px; opacity:0.5; display:block;">${m.time}</span></div>`;
                 });
                 body.scrollTop = body.scrollHeight;
@@ -227,7 +247,8 @@
             if(!input.value.trim() || !chatPartner) return;
             
             fetch('/api/messages', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({receiver: chatPartner, message: input.value})
             }).then(() => {
                 input.value = "";
@@ -235,8 +256,16 @@
             });
         }
 
-        function openWindow(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
-        setInterval(getMessages, 3000);
+        function openWindow(id, show) { 
+            document.getElementById(id).style.display = show ? 'flex' : 'none'; 
+        }
+
+        // Optimized Active-Only Stream Polling loop
+        setInterval(function() {
+            if (chatPartner) {
+                getMessages();
+            }
+        }, 3000);
     </script>
 </body>
 </html>
