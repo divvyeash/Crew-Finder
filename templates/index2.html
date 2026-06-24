@@ -15,7 +15,7 @@
                 <a href="{{ url_for('index', tab='groups') }}" class="{% if current_tab == 'groups' %}active{% endif %}">Find Groups</a>
                 <a href="{{ url_for('index', tab='events') }}" class="{% if current_tab == 'events' %}active{% endif %}">Events</a>
                 <a href="{{ url_for('index', tab='profiles') }}" class="{% if current_tab == 'profiles' %}active{% endif %}">Student Portfolios</a>
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %} # If the user is logged in, the following links will be displayed, allowing them to access their profile, post a group, post an event, and log out. If the user is not logged in, only the "Sign In" link will be shown.
                     <a href="{{ url_for('create_profile') }}">My Profile</a>
                     <a href="#" onclick="openWindow('groupModal', true)">Post Group</a>
                     <a href="#" onclick="openWindow('eventModal', true)">Post Event</a>
@@ -50,19 +50,16 @@
             <button type="submit" class="btn-filter-search">Apply Filters</button>
         </form>
 
-        {% if current_tab == 'groups' %}
-        <section class="listings-section"> 
-            <div class="listings-grid">
-                {% for group in groups %}  
-                <div class="project-card">
-                    <div class="card-header">
-                        <span class="subject-badge">{{ group.subject_code }}</span>
-                        <span class="spots-badge open">{{ group.slots_open }} open slots</span>
-                    </div>
+        {% if current_tab == 'groups' %}  # If the current tab is 'groups', the following section will be displayed, showing a grid of project group listings.
+        <section class="listings-section"> # This section contains the listings of project groups. It is only displayed when the 'groups' tab is active.
+            <div class="listings-grid"> # This div acts as a container for the grid layout of project group cards. Each card represents a project group and is generated dynamically based on the data retrieved from the database.
+                {% for group in groups %} # This loop iterates over the 'groups' variable, which contains a list of project group objects retrieved from the database. For each group in the list, a project card is created to display its details.
+                <div class="project-card">  # This div represents an individual project group card. It contains the details of a single project group, including its subject code, title, description, author, and available slots. The content of this card is dynamically populated based on the data from the 'group' object in the loop.
+                    <div class="card-header"><span class="subject-badge">{{ group.subject_code }}</span><span class="spots-badge open">{{ group.slots_open }} open slots</span></div> # This div represents the header of the project card. It contains two spans: one displaying the subject code of the project group (group.subject_code) and another showing the number of open slots available in the group (group.slots_open). The 'subject-badge' and 'spots-badge' classes are used for styling these elements.
                     <h3>{{ group.title }}</h3>
                     <p class="project-desc">{{ group.description }}</p>
                     <div class="card-footer">
-                        <span>Posted by: <strong>{{ group.author.username }}</strong></span> 
+                        <span>Posted by: <strong>{{ group.author.username }}</strong></span> # This span displays the username of the author who created the project group. The 'group.author.username' retrieves the username of the user associated with the project group, allowing users to see who posted the group.
                         <button class="btn-join" onclick="startChat('{{ group.author.username }}')">Message Leader</button>
                     </div>
                 </div>
@@ -76,10 +73,7 @@
             <div class="listings-grid">
                 {% for event in events %}
                 <div class="project-card event-card">
-                    <div class="card-header">
-                        <span class="subject-badge event-badge">MMU Event</span>
-                        <span class="spots-badge points-badge">+{{ event.mmu_points }} Activity Points</span>
-                    </div>
+                    <div class="card-header"><span class="subject-badge event-badge">MMU Event</span><span class="spots-badge points-badge">+{{ event.mmu_points }} Activity Points</span></div>
                     <h3>{{ event.title }}</h3>
                     <p class="event-meta-line">🏛️ Organizer: {{ event.organizer }}</p>
                     <p class="event-meta-line">📍 Venue: {{ event.venue }}</p>
