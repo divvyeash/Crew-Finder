@@ -1,7 +1,8 @@
 import os
 import re
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify 
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy import inspect as sqlalchemy_inspect, text
 from models import db, User, Project, Event, Message
 
 app = Flask(__name__)
@@ -9,11 +10,15 @@ app.config['SECRET_KEY'] = 'crewfinder_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crewfinder.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
+
 db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -63,7 +68,7 @@ def create_profile():
         current_user.skills = request.form.get('skills')
         current_user.bio = request.form.get('bio')
         current_user.avatar_name = request.form.get('avatar_name', 'bottts')
-        
+    
         db.session.commit() # This line commits the changes made to the current_user object to the database. It saves the updated profile information (course, semester, skills, bio, and avatar_name) for the logged-in user. Without this commit, the changes would not be persisted in the database.
         return redirect(url_for('index', tab='profiles'))
         
@@ -196,6 +201,13 @@ def chatbot():
 def add_sample_data():
     with app.app_context():
         db.create_all()
+
+        inspector = sqlalchemy_inspect(db.engine)
+        user_columns = {col['name'] for col in inspector.get_columns('user')}
+        if 'profile_pic' not in user_columns:
+            with db.engine.begin() as connection:
+                connection.execute(text("ALTER TABLE user ADD COLUMN profile_pic VARCHAR(150)"))
+
         if User.query.count() == 0:
             u1 = User(username="Divyyeash", email="divyyeash@student.mmu.edu.my", course="Computer Science", semester="Trimester 2, Year 2", bio="Python backend coder.", skills="Python, Flask, SQL", avatar_name="divy")
             u1.set_password("password123")
