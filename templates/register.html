@@ -14,9 +14,9 @@
             <p style="color:#94a3b8; font-size:0.9rem;">Register a new student account.</p>
         </div>
 
-        {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
+        {% with messages = get_flashed_messages() %} 
+    {% if messages %}   
+        {% for message in messages %}   
             <div style="
                 background-color:#7f1d1d;
                 color:#fecaca;
@@ -31,7 +31,7 @@
     {% endif %}
 {% endwith %}
 
-        <form action="{{ url_for('register') }}" method="POST">
+        <form action="{{ url_for('register') }}" method="POST"> # This line defines the form element for the registration process, specifying the action (URL to submit to) and method (HTTP method to use).
             <div class="input-group">
                 <label style="color:#cbd5e1; display:block; margin-bottom:6px; font-size:0.85rem;">Username</label>
                 <input type="text" name="username" placeholder="Choose a username" required style="width:100%; padding:12px; background-color:#0f172a; border:1px solid #334155; color:white; border-radius:8px;">

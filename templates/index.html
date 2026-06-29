@@ -36,24 +36,23 @@
                 <input type="text" name="search" value="{{ search_query }}" placeholder="Search here...">
             </div>
             
-            {% if current_tab == 'profiles' %}
-            <div style="display: flex; gap: 10px;">
-                <select name="course">
-                    <option value="">Filter by Course</option>
-                    {% for course in all_courses %}
-                        <option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option>
-                    {% endfor %}
-                </select>
-                <select name="skill">
-                    <option value="">Filter by Skill</option>
-                    {% for skill in all_skills %}
-                        <option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option>
-                    {% endfor %}
-                </select>
+        {% if current_tab == 'profiles' %} 
+            <div style="display: flex; gap: 10px;"> 
+                <select name="course"> 
+                    <option value="">Filter by Course</option> 
+                    {% for course in all_courses %} 
+                    <option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option> 
+                    {% endfor %} 
+                </select> 
+                <select name="skill"> 
+                    <option value="">Filter by Skill</option> 
+                    {% for skill in all_skills %} 
+                    <option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option> 
+                    {% endfor %} 
+                </select> 
             </div>
-            {% endif %}
-            <button type="submit" class="btn-filter-search">Apply Filters</button>
-        </form>
+             {% endif %} <button type="submit" class="btn-filter-search">Apply Filters</button> </form>
+
 
         {% if current_tab == 'groups' %}
         <section class="listings-section"> 
