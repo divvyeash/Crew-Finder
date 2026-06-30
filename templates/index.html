@@ -21,21 +21,31 @@
                     <a href="#" onclick="openWindow('eventModal', true)">Post Event</a>
                     <span class="user-pill">👤 {{ current_user.username }}</span>
                     <a href="{{ url_for('logout') }}" class="btn-nav-login logout-btn">Logout</a>
-                {% else %} 
+                {% else %}
                     <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for msg in messages %}
+                <div class="flash-msg">{{ msg }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
     <main class="dashboard-container">
-        
+
         <form method="GET" action="{{ url_for('index') }}" class="search-filter-section">
             <input type="hidden" name="tab" value="{{ current_tab }}">
             <div class="search-box">
                 <input type="text" name="search" value="{{ search_query }}" placeholder="Search here...">
             </div>
-            
+
             {% if current_tab == 'profiles' %}
             <div style="display: flex; gap: 10px;">
                 <select name="course">
@@ -56,9 +66,9 @@
         </form>
 
         {% if current_tab == 'groups' %}
-        <section class="listings-section"> 
+        <section class="listings-section">
             <div class="listings-grid">
-                {% for group in groups %}  
+                {% for group in groups %}
                 <div class="project-card">
                     <div class="card-header">
                         <span class="subject-badge">{{ group.subject_code }}</span>
@@ -67,10 +77,14 @@
                     <h3>{{ group.title }}</h3>
                     <p class="project-desc">{{ group.description }}</p>
                     <div class="card-footer">
-                        <span>Posted by: <strong>{{ group.author.username }}</strong></span> 
-                        <button class="btn-join" onclick="startChat('{{ group.author.username }}')">Message Leader</button>
+                        <span>Posted by: <strong>{{ group.author.username }}</strong></span>
+                        {% if current_user.is_authenticated and current_user.id != group.user_id %}
+                            <button class="btn-join" onclick="startChat('{{ group.author.username }}')">Message Leader</button>
+                        {% endif %}
                     </div>
                 </div>
+                {% else %}
+                <p class="empty-state">No groups found yet. Be the first to post one!</p>
                 {% endfor %}
             </div>
         </section>
@@ -91,6 +105,8 @@
                     <p class="event-meta-line">⏰ Date/Time: {{ event.date_time }}</p>
                     <p class="project-desc" style="margin-top:10px;">{{ event.description }}</p>
                 </div>
+                {% else %}
+                <p class="empty-state">No events posted yet.</p>
                 {% endfor %}
             </div>
         </section>
@@ -124,13 +140,15 @@
                         {% endif %}
                     </div>
                 </div>
+                {% else %}
+                <p class="empty-state">No profiles match your filters.</p>
                 {% endfor %}
             </div>
         </section>
         {% endif %}
     </main>
 
-    <div class="chat-widget" id="userChatBox" style="bottom:24px; right:400px; display:none; height:420px;">
+    <div class="chat-widget" id="userChatBox" style="display:none;">
         <div class="chat-header" style="background:linear-gradient(135deg, #10b981, #059669); display:flex; justify-content:space-between; align-items:center;">
             <h4 id="chatTitle">💬 Chat Session</h4>
             <span onclick="document.getElementById('userChatBox').style.display='none'" style="color:white; cursor:pointer; font-weight:bold;">✕</span>
@@ -185,32 +203,35 @@
     </div>
 
     <script>
-        // System variables & session context configuration
         var chatPartner = "";
         const CURRENT_USER_NAME = "{{ current_user.username if current_user.is_authenticated else '' }}";
 
-        function toggleAIChat() { 
-            document.getElementById('aiChatBox').classList.toggle('open'); 
+        function toggleAIChat() {
+            document.getElementById('aiChatBox').classList.toggle('open');
         }
-        
+
         function sendAiMessage() {
             var input = document.getElementById('aiChatInput');
             var body = document.getElementById('aiChatBody');
             if(!input.value.trim()) return;
-            
+
             body.innerHTML += `<div class="msg user">${input.value}</div>`;
-            var userText = input.value; 
-            input.value = ''; 
+            var userText = input.value;
+            input.value = '';
             body.scrollTop = body.scrollHeight;
 
             fetch('/api/chatbot', {
-                method: 'POST', 
+                method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({message: userText})
             })
             .then(res => res.json())
             .then(data => {
                 body.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+                body.scrollTop = body.scrollHeight;
+            })
+            .catch(() => {
+                body.innerHTML += `<div class="msg bot">Sorry, something went wrong reaching the assistant.</div>`;
                 body.scrollTop = body.scrollHeight;
             });
         }
@@ -227,9 +248,9 @@
         }
 
         function getMessages() {
-            if(!chatPartner) return; // Prevent routine executions if no chat layout active
-            
-            fetch('/api/messages?partner=' + chatPartner)
+            if(!chatPartner) return;
+
+            fetch('/api/messages?partner=' + encodeURIComponent(chatPartner))
             .then(res => res.json())
             .then(data => {
                 var body = document.getElementById('userChatBody');
@@ -245,9 +266,9 @@
         function sendUserMessage() {
             var input = document.getElementById('userChatInput');
             if(!input.value.trim() || !chatPartner) return;
-            
+
             fetch('/api/messages', {
-                method: 'POST', 
+                method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({receiver: chatPartner, message: input.value})
             }).then(() => {
@@ -256,11 +277,10 @@
             });
         }
 
-        function openWindow(id, show) { 
-            document.getElementById(id).style.display = show ? 'flex' : 'none'; 
+        function openWindow(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
         }
 
-        // Optimized Active-Only Stream Polling loop
         setInterval(function() {
             if (chatPartner) {
                 getMessages();
