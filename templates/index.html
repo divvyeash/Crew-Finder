@@ -19,7 +19,7 @@
                     <a href="{{ url_for('create_profile') }}">My Profile</a>
                     <a href="#" onclick="openWindow('groupModal', true)">Post Group</a>
                     <a href="#" onclick="openWindow('eventModal', true)">Post Event</a>
-                    <span class="user-pill">👤 {{ current_user.username }}</span>
+                    <span class="user-pill">👤{{current_user.username}}</span>
                     <a href="{{ url_for('logout') }}" class="btn-nav-login logout-btn">Logout</a>
                 {% else %}
                     <a href="{{ url_for('login') }}" class="btn-nav-login">Sign In</a>
@@ -45,6 +45,7 @@
             <div class="search-box">
                 <input type="text" name="search" value="{{ search_query }}" placeholder="Search here...">
             </div>
+<<<<<<< HEAD
 
             {% if current_tab == 'profiles' %}
             <div style="display: flex; gap: 10px;">
@@ -60,10 +61,26 @@
                         <option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option>
                     {% endfor %}
                 </select>
+=======
+            
+        {% if current_tab == 'profiles' %} 
+            <div style="display: flex; gap: 10px;"> 
+                <select name="course"> 
+                    <option value="">Filter by Course</option> 
+                    {% for course in all_courses %} 
+                    <option value="{{ course }}" {% if course_filter == course %}selected{% endif %}>{{ course }}</option> 
+                    {% endfor %} 
+                </select> 
+                <select name="skill"> 
+                    <option value="">Filter by Skill</option> 
+                    {% for skill in all_skills %} 
+                    <option value="{{ skill }}" {% if skill_filter == skill %}selected{% endif %}>{{ skill }}</option> 
+                    {% endfor %} 
+                </select> 
+>>>>>>> 021960c076270a35c26c4450e7d0ad94e1ad19fc
             </div>
-            {% endif %}
-            <button type="submit" class="btn-filter-search">Apply Filters</button>
-        </form>
+             {% endif %} <button type="submit" class="btn-filter-search">Apply Filters</button> </form>
+
 
         {% if current_tab == 'groups' %}
         <section class="listings-section">
